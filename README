@@ -1,2 +1,71 @@
 This is a little hack that allows you to control a iptables-based firewall
 via a Twilio IVR application running on your server.
+
+I assume you have port 22 and 8880 open on your router, with some rules which
+restrict access to those ports. In my case I have something like:
+
+    ..
+    10  ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED 
+    11
+    12
+    13
+    14  ACCEPT     tcp  --  192.168.3.0/24       0.0.0.0/0           state NEW tcp dpt:22 
+    15  LOGNDROP   tcp  --  100.10.200.20        0.0.0.0/0           state NEW tcp dpt:22 
+    16  LOGNDROP   tcp  --  0.0.0.0/0            0.0.0.0/0           state NEW tcp dpt:22 
+    17
+    18
+    19
+    20  LOGNKEEP   tcp  --  174.129.0.0/16       0.0.0.0/0           state NEW tcp dpt:8800 
+    21  LOGNKEEP   tcp  --  204.236.128.0/17     0.0.0.0/0           state NEW tcp dpt:8800
+    22  LOGNKEEP   tcp  --  184.72.0.0/15        0.0.0.0/0           state NEW tcp dpt:8800 
+    23  LOGNDROP   tcp  --  0.0.0.0              0.0.0.0/0           state NEW tcp dpt:8880
+    24
+    25
+    ..
+    34
+    35  ACCEPT     tcp  --  192.168.1.222        0.0.0.0/0           state NEW tcp dpts:6599:6600 
+    36  LOGNDROP   all  --  0.0.0.0/0            0.0.0.0/0           
+
+As you can see I restrict port 22 to the LAN and have rule 15 which can be
+modified as necessary for a new IP address. Port 8800 is open to a series of
+IP addresses used by Amazon Web Services (the infrastructure used by Twilio).
+There might be more IP address ranges that Twilio uses, you can run some
+experiments to find out.
+
+LOGNDROP and LOGNKEEP are just intermediate targets defined as:
+
+Chain LOGNDROP (5 references)
+target     prot opt source               destination         
+LOG        tcp  --  0.0.0.0/0            0.0.0.0/0           limit: avg 6/min burst 5 LOG flags 0 level 5 prefix `Denied TCP connection: ' 
+LOG        udp  --  0.0.0.0/0            0.0.0.0/0           limit: avg 6/min burst 5 LOG flags 0 level 5 prefix `Denied UDP connection: ' 
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+        
+Chain LOGNKEEP (11 references)
+target     prot opt source               destination         
+LOG        tcp  --  0.0.0.0/0            0.0.0.0/0           limit: avg 6/min burst 5 LOG flags 0 level 5 prefix `Accepted TCP connection: ' 
+LOG        udp  --  0.0.0.0/0            0.0.0.0/0           limit: avg 6/min burst 5 LOG flags 0 level 5 prefix `Accepted UDP connection: ' 
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           
+
+Place the twipn.php web application in your web server root (or wherever you
+like, as long as it matches the setup in your Twilio account).
+
+I have a VirtualHost defined on port 8800 which handles exclusively requests
+coming in from Twilio.
+
+<VirtualHost *:8800>
+	ServerAdmin postmaster@example.org
+	ServerName www.example.org
+
+	DocumentRoot /var/www/twipn/
+	# so on and so forth
+
+</VirtualHost>
+
+You will also need to place the iptables_wrapper_script.sh in /usr/local/bin
+and make sure the user your web server runs as can execute the script with root
+privileges. In Ubuntu, I just added the following lines to /etc/sudoers
+
+# Apache user can run a wrapper script that ultimately calls iptables
+www-data  your_hostname = NOPASSWD:/usr/local/bin/iptables_wrapper_script.sh
+
+That's about all I think. Let me know if anything isn't clear.
