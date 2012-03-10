@@ -1,5 +1,7 @@
 <?php
 
+include ("common.php");
+
 // data must be persisted otherwise it gets lost each time
 // the page is reloaded (after the user selects an action)
 class FireHole
@@ -42,12 +44,6 @@ class FireHole
 
 $fh = FireHole::factory();
 
-$people = array(
-	"+12126467180"  => "Mr New Yorker",
-	"+12345678900"  => "Invented Phone",
-	"+19876543210"  => "Enhop Dentenvi"
-);
-
 $next = array();
 $next['act'] = array('hsl', 'listen', 'update', 'activate', 'music', 'killswitch');
 $next['config'] = array('hsl', 'ipaddr', 'port', 'duration');
@@ -71,15 +67,24 @@ switch ($node) {
 		foreach ($tmp as &$val) {
 			$val = ltrim($val, '0');
 		}
-		$fh->ipaddr = join('.', $tmp);
+		$ip = implode('.', $tmp);
+		if (ValidIpAddress($ip) {
+			$fh->ipaddr = $ip;
+		}
 		$dest = 'mainmenu';
 		break;
 	case 'updpt':
-		$fh->port = ltrim($index, '0');
+		$p = ltrim($index, '0');
+		if (ValidPort($p) {
+			$fh->port = $p;
+		}
 		$dest = 'mainmenu';
 		break;
 	case 'updtw':
-		$fh->duration = ltrim($index, '0');
+		$d = ltrim($index, '0');
+		if (ValidDuration($d) {
+			$fh->duration = $d;
+		}
 		$dest = 'mainmenu';
 		break;
 	default:
@@ -101,7 +106,10 @@ if (!is_null($people[$_REQUEST['From']])) {
 
 // render TwiML
 header("content-type: text/xml");
-echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response>\n";
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+?>
+<Response>
+<?php
 
 if (!$name) { ?>
 	<Say>Sorry but at this time access is restricted to known phone numbers</Say>
