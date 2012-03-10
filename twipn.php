@@ -6,40 +6,39 @@ include ("common.php");
 // the page is reloaded (after the user selects an action)
 class FireHole
 {
-        private $data = array();
+	private $data = array();
 
-        // constructor
-        public function __construct() {
+	// constructor
+	public function __construct() {
 		$this->data['cnt'] = 1;
 		$this->data['ipaddr'] = '192.168.100.100';
 		$this->data['port'] = '22';
 		$this->data['duration'] = '11';
+	}
+
+	// factory method
+	public static function factory() {
+		session_start();
+		if(isset($_SESSION['conn']) === TRUE) {
+			return unserialize($_SESSION['conn']);
+		}
+		return new FireHole();
+	}
+
+	public function __set($property, $value) {
+		$this->data[$property] = $value;
+	}
+
+	public function __get($property) {
+		if (isset($this->data[$property]) === TRUE) {
+			return $this->data[$property];
+		}
         }
 
-        // factory method
-        public static function factory() {
-                session_start();
-                if(isset($_SESSION['conn']) === TRUE) {
-                        return unserialize($_SESSION['conn']);
-                }
-                return new FireHole();
-        }
-
-        public function __set($property, $value)
-        {
-                $this->data[$property] = $value;
-        }
-
-        public function __get($property) {
-                if (isset($this->data[$property]) === TRUE) {
-                        return $this->data[$property];
-                }
-        }
-
-        // save object to session variable
-        public function __destruct() {
-                $_SESSION['conn'] = serialize($this);
-        }
+	// save object to session variable
+	public function __destruct() {
+		$_SESSION['conn'] = serialize($this);
+	}
 }
 
 $fh = FireHole::factory();
