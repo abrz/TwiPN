@@ -1,7 +1,43 @@
 This is a little hack that allows you to control a iptables-based firewall
-via a Twilio IVR application running on your server.
+via a Twilio application running on your server.
 
-I assume you have port 22 and 8880 open on your router, with some rules which
+The idea is that via an interactive menu or by sending a specially crafted
+SMS to your Twilio enabled phone number you instruct the remote machine to
+change some specific rules in your firewall so that you gain access. I use
+it to open port 22 for ssh access when I am traveling. I also set up a
+command to open a coupe of ports which allow me to control my mpd server
+and listen to the music streamed by it.
+
+You should instantiate twipn.php for an IVR solution and/or twipnsms.php for
+access via SMS.
+
+
+--- Usage
+
+The IVR application guides you through the various steps required to input
+an IP address, a port number and the time window that you want to set this
+configuration for. It requires to enter the IP address as a 12-digit string,
+the port number as a 4-digit string and the time window as a 2-digit string.
+For example, address 11.234.5.67 is entered as 011234005067, port 22 is
+entered as 0022 and 7 minutes as 07. You first set the various parameters
+and then request to activate the configuration.
+
+The SMS solution requires to enter the command first: 'O' to open a specific
+port to the given IP address; 'C' to terminate access; 'M' to open the ports
+I use for mpd control and for the music stream. After the command comes the
+IP address in dot notation, the port, and the time window. Finally, a 'C'
+can be specified to request a confirmation message to be sent back to you.
+The various fields must be separate by a colon (':'). As an example to allow
+access to port 80 from IP 22.33.44.55 for 30 minutes and get a confirmation
+one would text the string 'O:22.33.44.55:80:30:C' without quotes.
+
+In either solution, once the specified time window expires new accesses to
+the specified port from the given IP will no longer be allowed.
+
+
+--- Requirements and Setup
+
+I assume you have port 22 and 8800 open on your router, with some rules which
 restrict access to those ports. In my case I have something like:
 
     ..
@@ -46,11 +82,11 @@ LOG        tcp  --  0.0.0.0/0            0.0.0.0/0           limit: avg 6/min bu
 LOG        udp  --  0.0.0.0/0            0.0.0.0/0           limit: avg 6/min burst 5 LOG flags 0 level 5 prefix `Accepted UDP connection: ' 
 ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           
 
-Place the twipn.php web application in your web server root (or wherever you
+Place the php web applications in your web server root (or wherever you
 like, as long as it matches the setup in your Twilio account).
 
-I have a VirtualHost defined on port 8800 which handles exclusively requests
-coming in from Twilio.
+I have an apache server running with a VirtualHost defined on port 8800
+handling exclusively requests coming in from Twilio.
 
 <VirtualHost *:8800>
 	ServerAdmin postmaster@example.org
@@ -67,5 +103,8 @@ privileges. In Ubuntu, I just added the following lines to /etc/sudoers
 
 # Apache user can run a wrapper script that ultimately calls iptables
 www-data  your_hostname = NOPASSWD:/usr/local/bin/iptables_wrapper_script.sh
+
+Finally, in order to expire the temporary iptables rule you set up, your
+system needs to have 'at' installed.
 
 That's about all I think. Let me know if anything isn't clear.
