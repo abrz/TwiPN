@@ -5,7 +5,7 @@ The idea is that via an interactive menu or by sending a specially crafted
 SMS to your Twilio enabled phone number you instruct the remote machine to
 change some specific rules in your firewall so that you gain access. I use
 it to open port 22 for ssh access when I am traveling. I also set up a
-command to open a coupe of ports which allow me to control my mpd server
+command to open a couple of ports which allow me to control my mpd server
 and listen to the music streamed by it.
 
 You should instantiate twipn.php for an IVR solution and/or twipnsms.php for
@@ -24,7 +24,7 @@ and then request to activate the configuration.
 
 The SMS solution requires to enter the command first: 'O' to open a specific
 port to the given IP address; 'C' to terminate access; 'M' to open the ports
-I use for mpd control and for the music stream. After the command comes the
+I use for mpd control and for streaming music. After the command comes the
 IP address in dot notation, the port, and the time window. Finally, a 'C'
 can be specified to request a confirmation message to be sent back to you.
 The various fields must be separate by a colon (':'). As an example to allow
@@ -85,7 +85,7 @@ ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
 Place the php web applications in your web server root (or wherever you
 like, as long as it matches the setup in your Twilio account).
 
-I have an apache server running with a VirtualHost defined on port 8800
+I have an Apache server running with a virtual host defined on port 8800
 handling exclusively requests coming in from Twilio.
 
 <VirtualHost *:8800>
