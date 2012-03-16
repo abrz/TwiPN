@@ -30,7 +30,7 @@ port to the given IP address; `C` to terminate access; `M` to open the ports
 I use for mpd control and for streaming music. After the command comes the
 IP address in dot notation, the port, and the time window. Finally, a `C`
 can be specified to request a confirmation message to be sent back to you.
-The various fields must be separate by a colon (\':\'). As an example to allow
+The various fields must be separate by a colon (':'). As an example to allow
 access to port 80 from IP 22.33.44.55 for 30 minutes and get a confirmation
 one would text the string `O:22.33.44.55:80:30:C`.
 
@@ -107,6 +107,6 @@ privileges. In Ubuntu, I just added the following lines to /etc/sudoers
 	www-data  your_hostname = NOPASSWD:/usr/local/bin/iptables_wrapper_script.sh
 
 Finally, in order to expire the temporary iptables rule you set up, your
-system needs to have \'at\' installed.
+system needs to have 'at' installed.
 
-That\'s about all I think. Let me know if anything isn\'t clear.
+That's about all I think. Let me know if anything isn't clear.
