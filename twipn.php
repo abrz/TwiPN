@@ -48,7 +48,7 @@ $fh = FireHole::factory();
 
 $next = array();
 $next['act'] = array('hsl', 'listen', 'update', 'activate', 'music', 'killswitch');
-$next['config'] = array('hsl', 'ipaddr', 'port', 'duration');
+$next['config'] = array('hsl', 'ipaddr', 'port', 'duration', 'hsl', 'hsl', 'hsl', 'hsl', 'hsl', 'back');
 
 if (!is_null($_REQUEST['node'])) {
 	$node = $_REQUEST['node'];
@@ -70,23 +70,26 @@ switch ($node) {
 			$val = ltrim($val, '0');
 		}
 		$ip = implode('.', $tmp);
-		if (ValidIpAddress($ip) {
+		if (ValidIpAddress($ip)) {
 			$fh->ipaddr = $ip;
 		}
-		$dest = 'mainmenu';
+		$dest = 'update';
 		break;
 	case 'updpt':
 		$p = ltrim($index, '0');
-		if (ValidPort($p) {
+		if (ValidPort($p)) {
 			$fh->port = $p;
 		}
-		$dest = 'mainmenu';
+		$dest = 'update';
 		break;
 	case 'updtw':
 		$d = ltrim($index, '0');
-		if (ValidDuration($d) {
+		if (ValidDuration($d)) {
 			$fh->duration = $d;
 		}
+		$dest = 'update';
+		break;
+	case 'back':
 		$dest = 'mainmenu';
 		break;
 	default:
@@ -166,6 +169,7 @@ switch ($dest) {
 			<Say>Press 1 to change the address you want to control</Say>
 			<Say>Press 2 to change the port number</Say>
 			<Say>Press 3 to change the time window</Say>
+			<Say>Press 9 to go back to the main menu</Say>
 		</Gather>
 		<Say>Sorry, I did not get your input</Say>
 		<?php break;
@@ -191,6 +195,7 @@ switch ($dest) {
 		<Say>Sorry, I did not get your input</Say>
 		<?php break;
 	case 'mainmenu': ?>
+		<Say>Main Menu</Say>
 		<?php break;
 
 	default: ?>
