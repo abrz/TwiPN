@@ -2,14 +2,14 @@
 
 include ("settings.php");
 
-function LogAction($srcid, $dstid, $logmsg) {
+function LogAction($src, $dst, $logmsg) {
 
 	if (LOG_ACTIONS) {
 		$s = date("Y/m/d h:i:s", mktime()) . ">> " . $src . ": " . $logmsg . "\n";
-		if ($dstid == LOG_DEST_EMAIL) {
+		if ($dst == LOG_DST_EMAIL) {
 			// send email
 			// FIXME: subject can't be adjusted, should use mail() perhaps
-			error_log($s, 1, ADMIN_EMAIL);
+			error_log($s, 1, ADMIN_EMAIL, "From: $src \r\n");
 		} else {					// default to syslog
 			// use syslog
 			error_log($s, 0);

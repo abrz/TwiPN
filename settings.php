@@ -3,8 +3,8 @@
 define('LOG_ACTIONS', TRUE);
 define('ADMIN_EMAIL', "admin@example.org");
 
-define('LOG_DEST_SYSLOG', 0);
-define('LOG_DEST_EMAIL', 1);
+define('LOG_DST_SYSLOG', 0);
+define('LOG_DST_EMAIL', 1);
 
 define('LOG_SRC_TWIPN', "TwiPN");
 define('LOG_SRC_TWIPNSMS', "TwiPNSMS");
