@@ -1,5 +1,22 @@
 <?php
 
+include ("settings.php");
+
+function LogAction($srcid, $dstid, $logmsg) {
+
+	if (LOG_ACTIONS) {
+		$s = date("Y/m/d h:i:s", mktime()) . ">> " . $src . ": " . $logmsg . "\n";
+		if ($dstid == LOG_DEST_EMAIL) {
+			// send email
+			// FIXME: subject can't be adjusted, should use mail() perhaps
+			error_log($s, 1, ADMIN_EMAIL);
+		} else {					// default to syslog
+			// use syslog
+			error_log($s, 0);
+		}
+	}
+}
+
 function ValidIpAddress($a) {
 	if (preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a)) {
 		foreach (explode(".", $a) as $val) {
@@ -43,11 +60,5 @@ function ValidCommand($c) {
 		return false;
 	}
 }
-
-$people = array(
-	"+12126467180"  => "Mr New Yorker",
-	"+12345678900"  => "Invented Phone",
-	"+19876543210"  => "Enhop Dentenvi"
-);
 
 ?>

@@ -2,8 +2,11 @@
 
 include ("common.php");
 
-$confirm = 'N';
-$field_delim = ':';
+$mylogsrc = LOG_SRC_TWIPNSMS;
+$mylogdst = LOG_DST_SYSLOG;
+
+$confirm = SMS_CONFIRM_DEFAULT;
+$field_delim = SMS_FIELD_DELIM;
 
 if (!is_null($people[$_REQUEST['From']])) {
 	$name = $people[$_REQUEST['From']];
@@ -36,17 +39,21 @@ if ($name) {
 		case 'O':
 			$output = shell_exec("sudo /usr/local/bin/iptables_wrapper_script.sh -a $ipaddr $port $duration ");
 			$msg = "open $ipaddr:$port for $duration minutes";
+			LogAction($mylogsrc, $mylogdst, "$name requested to " . $msg);
 			break;
 		case 'C':
 			$output = shell_exec("sudo /usr/local/bin/iptables_wrapper_script.sh -d $ipaddr $port 0 ");
 			$msg = "close $ipaddr:$port";
+			LogAction($mylogsrc, $mylogdst, "$name requested to " . $msg);
 			break;
 		case 'M':
 			$output = shell_exec("sudo /usr/local/bin/iptables_wrapper_script.sh -m $ipaddr 0 60 ");
 			$msg = "allow access to the mpd stream and control port";
+			LogAction($mylogsrc, $mylogdst, "$name requested to " . $msg);
 			break;
 		default:
 			$msg = "!! bug in command validation function? !!";
+			LogAction($mylogsrc, $mylogdst, $msg);
 			break;
 		}
 		if ($confirm == 'C') { // send confirmation SMS ?>
@@ -57,12 +64,14 @@ if ($name) {
 			</Response>
 		<?php
 		}
-	} else { ?>
+	} else {
+		LogAction($mylogsrc, $mylogdst, $name . "posted a request with wrong syntax, no command was executed"); ?>
 		<Sms>TwiPN SMS API: request from <?php echo $name; ?> had wrong TwiPN syntax, no command was executed</Sms>
 		</Response>
 	<?php
 	}
-} else { ?>
+} else {
+	LogAction($mylogsrc, $mylogdst, "Unkown phone " . $_REQUEST['From'] . " posted a request, no command was executed"); ?>
 	<Sms>TwiPN SMS API: This phone number is not allowed to execute commands, you may want to update the whitelist</Sms>
 	</Response>
 <?php

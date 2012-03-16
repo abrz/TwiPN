@@ -2,6 +2,9 @@
 
 include ("common.php");
 
+$mylogsrc = LOG_SRC_TWIPN;
+$mylogdst = LOG_DST_SYSLOG;
+
 // data must be persisted otherwise it gets lost each time
 // the page is reloaded (after the user selects an action)
 class FireHole
@@ -110,7 +113,8 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 <Response>
 <?php
 
-if (!$name) { ?>
+if (!$name) {
+	LogAction($mylogsrc, $mylogdst, "Unkown phone " . $_REQUEST['From'] . " posted a request, no command was executed"); ?>
 	<Say>Sorry but at this time access is restricted to known phone numbers</Say>
 	<Pause />
 	<Hangup />
@@ -135,6 +139,7 @@ switch ($dest) {
 	case 'activate': ?>
 		<Say>Activating new firewall settings!</Say>
 		<?php $output = shell_exec("sudo /usr/local/bin/iptables_wrapper_script.sh -a $fh->ipaddr $fh->port $fh->duration "); ?>
+		<?php LogAction($mylogsrc, $mylogdst, "$name requested to open $fh->ipaddr:$fh->port for $fh->duration minutes"); ?>
 		<Pause />
 		<Say>Thank you for using Twi P N, goodbye</Say>
 		<Hangup />
@@ -142,6 +147,7 @@ switch ($dest) {
 	case 'music': ?>
 		<Say>Opening the firewall for <?php echo $fh->ipaddr ?>, enjoy the music!</Say>
 		<?php $output = shell_exec("sudo /usr/local/bin/iptables_wrapper_script.sh -m $fh->ipaddr 0 60 "); ?>
+		<?php LogAction($mylogsrc, $mylogdst, "$name requested to allow access to the mpd stream and control port"); ?>
 		<Pause />
 		<Say>Thank you for using Twi P N, goodbye</Say>
 		<Hangup />
@@ -149,6 +155,7 @@ switch ($dest) {
 	case 'killswitch': ?>
 		<Say>Emergency lock!</Say>
 		<?php $output = shell_exec("sudo /usr/local/bin/iptables_wrapper_script.sh -d $fh->ipaddr $fh->port 0 "); ?>
+		<?php LogAction($mylogsrc, $mylogdst, "$name requested to close $fh->ipaddr:$fh->port"); ?>
 		<Pause />
 		<Say>Thank you for using Twi P N, goodbye</Say>
 		<Hangup />
