@@ -65,7 +65,7 @@ if ($name) {
 		<?php
 		}
 	} else {
-		LogAction($mylogsrc, $mylogdst, $name . "posted a request with wrong syntax, no command was executed"); ?>
+		LogAction($mylogsrc, $mylogdst, $name . " posted a request with wrong syntax, no command was executed"); ?>
 		<Sms>TwiPN SMS API: request from <?php echo $name; ?> had wrong TwiPN syntax, no command was executed</Sms>
 		</Response>
 	<?php
